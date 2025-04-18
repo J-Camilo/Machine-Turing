@@ -53,28 +53,70 @@ class TuringMachine {
     }
 }
 
-// Función para ejecutar la máquina de Turing al hacer clic en el botón
-document.getElementById('executeButton').addEventListener('click', function () {
-    const mode = document.getElementById('mode').value;
-    const input = document.getElementById('inputContent').value.trim();
-    const outputDiv = document.getElementById('output');
-    outputDiv.innerHTML = '';
 
-    try {
-        const tm = new TuringMachine(mode);
-        tm.setInput(input);
-        tm.run();
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('executeButton').addEventListener('click', function () {
+        const mode = document.getElementById('mode').value;
+        const input = document.getElementById('inputContent').value.trim();
+        const outputDiv = document.getElementById('output');
+        const translatorDiv = document.getElementById('translator');
 
-        const result = tm.getResult();
-        const tape = tm.printTape();
+        // Limpiar resultados anteriores
+        outputDiv.innerHTML = '';
+        translatorDiv.innerHTML = '';
 
-        outputDiv.innerHTML = `
-            <strong>Resultado (${mode}):</strong> ${result}
-            <br><br>
-            <strong>Cinta:</strong>
-            <div>${tape}</div>
-        `;
-    } catch (error) {
-        outputDiv.innerHTML = `<span class="error">${error.message}</span>`;
+        try {
+            const tm = new TuringMachine(mode);
+            tm.setInput(input);
+            tm.run();
+
+            const result = tm.getResult();
+            const tape = tm.printTape();
+
+            // Mostrar resultado
+            outputDiv.innerHTML = `
+                <strong>Resultado (${mode}):</strong> ${result}
+                <br><br>
+                <strong>Cinta:</strong>
+                <div>${tape}</div>
+            `;
+
+            // Mostrar explicación de la suma
+            const translatedInput = translateInput(input, mode);
+            translatorDiv.innerHTML = `
+                <strong>Explicación de la suma:</strong>
+                <div>${translatedInput}</div>
+            `;
+        } catch (error) {
+            outputDiv.innerHTML = `<span class="error">${error.message}</span>`;
+        }
+    });
+
+    function translateInput(input, mode) {
+        if (mode === "binario") {
+            const [binA, binB] = input.split('#');
+            const decA = parseInt(binA, 2);
+            const decB = parseInt(binB, 2);
+            const sumDecimal = decA + decB;
+            const sumBinary = sumDecimal.toString(2);
+
+            return `
+                <div>Entrada en binario: ${binA} + ${binB}</div>
+                <div>Conversión a decimal: ${decA} + ${decB} = ${sumDecimal}</div>
+                <div>Resultado en binario: ${sumBinary}</div>
+            `;
+        } else if (mode === "hexadecimal") {
+            const [hexA, hexB] = input.toUpperCase().split('#');
+            const decA = parseInt(hexA, 16);
+            const decB = parseInt(hexB, 16);
+            const sumDecimal = decA + decB;
+            const sumHex = sumDecimal.toString(16).toUpperCase();
+
+            return `
+                <div>Entrada en hexadecimal: ${hexA} + ${hexB}</div>
+                <div>Conversión a decimal: ${decA} + ${decB} = ${sumDecimal}</div>
+                <div>Resultado en hexadecimal: ${sumHex}</div>
+            `;
+        }
     }
 });
